@@ -1,0 +1,137 @@
+Here’s a practical architecture and step-by-step plan for your AI agent for restaurant booking management, focusing on cost efficiency, demo readiness, and leveraging the free tiers of ElevenLabs, Calendly, and Twilio (or email-to-SMS).
+
+---
+
+## 1. **System Architecture Overview**
+
+**Components:**
+- **Voice Gateway:** Handles phone calls (inbound/outbound), speech-to-text, and text-to-speech.
+- **NLP/Logic Layer:** Extracts booking info from speech, manages dialog, and interacts with APIs.
+- **Booking Backend:** Integrates with Calendly (or Google Calendar) for availability and booking.
+- **Notification Service:** Sends SMS confirmations (Twilio or email-to-SMS).
+- **Dashboard/Logs:** Simple web/CLI interface for owner to view/manage bookings.
+
+---
+
+## 2. **Tech Stack & Free Tiers**
+
+- **Voice:**  
+  - **ElevenLabs API** for TTS (10k chars/month free)  
+  - **Whisper (OpenAI)** for STT (can run locally for free)
+- **Booking:**  
+  - **Calendly API** (1 calendar, basic scheduling free)  
+  - **Fallback:** Google Calendar API (free tier)
+- **SMS:**  
+  - **Twilio API** (trial credit)  
+  - **Fallback:** Email-to-SMS (free, but less reliable)
+- **Backend:**  
+  - **Python + Flask** (can run locally or on Replit for demo)
+- **Dashboard:**  
+  - **Simple Flask web page** or CLI, CSV export
+
+---
+
+## 3. **Workflow**
+
+### **A. Inbound/Outbound Call Flow**
+1. **Call Initiation:**  
+   - Inbound: Use a Twilio phone number (trial) to receive calls.  
+   - Outbound: Trigger calls via Twilio API for demo.
+2. **Speech-to-Text:**  
+   - Record customer speech, transcribe using Whisper.
+3. **NLP Extraction:**  
+   - Extract name, contact, party size, date/time from text.
+4. **Booking Logic:**  
+   - Query Calendly API for slot availability.
+   - Suggest alternatives if slot is unavailable.
+   - Book slot via Calendly API.
+5. **Text-to-Speech:**  
+   - Use ElevenLabs API to generate dynamic voice responses.
+6. **SMS Confirmation:**  
+   - Send booking details via Twilio SMS or email-to-SMS.
+
+### **B. Booking Management**
+- **Calendly API:**  
+  - Check available slots, create bookings, fetch existing bookings.
+- **Fallback:**  
+  - Use Google Calendar API if Calendly is too restrictive.
+
+### **C. Dashboard/Logs**
+- **Web/CLI Interface:**  
+  - Show live bookings (pull from Calendly or local CSV).
+  - Export logs as CSV.
+
+---
+
+## 4. **API Integration Pointers**
+
+### **A. ElevenLabs API**
+- **TTS:**  
+  - Use `/v1/text-to-speech` endpoint ([docs](https://elevenlabs.io/docs/api-reference/)).
+  - Send text, receive audio (mp3/wav).
+- **STT:**  
+  - Use Whisper locally (no API cost).
+
+### **B. Calendly API**
+- **Auth:**  
+  - Use personal access token (PAT) for demo ([docs](https://developer.calendly.com/getting-started)).
+- **Endpoints:**  
+  - `/scheduled_events` to list bookings.
+  - `/event_types` to get available slots.
+  - `/invitees` to create bookings.
+
+### **C. Twilio API**
+- **SMS:**  
+  - Use `/Messages` endpoint ([docs](https://www.twilio.com/docs/conversations/fundamentals)).
+  - For trial, SMS only to verified numbers.
+- **Email-to-SMS:**  
+  - Send email to `number@carrier.com` (e.g., `1234567890@txt.att.net`).
+
+---
+
+## 5. **Demo/Prototype Plan**
+
+- **Local Flask app** with endpoints for:
+  - Simulating a call (upload audio, get response).
+  - Booking a table (form or CLI).
+  - Viewing bookings/logs.
+- **Test with 5-10 demo bookings.**
+- **CSV export** for logs.
+
+---
+
+## 6. **Sample Flow (Pseudocode)**
+
+```python
+# 1. Receive call (Twilio webhook) -> record audio
+# 2. Transcribe audio (Whisper)
+# 3. Extract booking info (NLP)
+# 4. Check availability (Calendly API)
+# 5. Book slot (Calendly API)
+# 6. Generate response (ElevenLabs TTS)
+# 7. Send SMS confirmation (Twilio/email-to-SMS)
+# 8. Log booking (CSV/DB)
+```
+
+---
+
+## 7. **Cost-Saving Tips**
+
+- **Run Whisper locally** to avoid API costs.
+- **Use only free tiers** of ElevenLabs, Calendly, and Twilio.
+- **Email-to-SMS** for unlimited SMS (if Twilio trial is exhausted).
+- **Host locally or on Replit** for demo (no cloud hosting fees).
+
+---
+
+## 8. **Next Steps**
+
+1. **Set up accounts** (ElevenLabs, Calendly, Twilio).
+2. **Prototype Flask app** with endpoints for each step.
+3. **Integrate APIs** one by one.
+4. **Test end-to-end flow** with demo data.
+5. **Prepare simple dashboard/logs.**
+
+---
+
+**Let me know which part you want to start with (e.g., voice, booking, SMS, or dashboard), and I can provide code samples and integration steps for that component!**
