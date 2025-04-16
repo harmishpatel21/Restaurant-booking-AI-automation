@@ -1,0 +1,148 @@
+{% extends "base.html" %}
+
+{% block title %}Restaurant Booking AI - Audit Logs{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-8">
+        <h1>Audit Logs</h1>
+        <p>Comprehensive audit logging for compliance and tracking</p>
+    </div>
+    <div class="col-md-4 text-md-end">
+        <button id="export-audit-logs" class="btn btn-outline-secondary">
+            <i class="fas fa-download me-1"></i> Export CSV
+        </button>
+    </div>
+</div>
+
+<!-- Filters Row -->
+<div class="row mb-4">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Filters</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6 mb-2">
+                        <label for="audit-date-filter" class="form-label">Date Range</label>
+                        <input type="text" class="form-control" id="audit-date-filter" placeholder="Select date range">
+                    </div>
+                    <div class="col-md-6 mb-2">
+                        <label for="audit-action-filter" class="form-label">Action</label>
+                        <select class="form-select" id="audit-action-filter">
+                            <option value="">All Actions</option>
+                            <option value="create_booking" {% if filter_action == 'create_booking' %}selected{% endif %}>Create Booking</option>
+                            <option value="update_booking" {% if filter_action == 'update_booking' %}selected{% endif %}>Update Booking</option>
+                            <option value="cancel_booking" {% if filter_action == 'cancel_booking' %}selected{% endif %}>Cancel Booking</option>
+                            <option value="voice_interaction" {% if filter_action == 'voice_interaction' %}selected{% endif %}>Voice Interaction</option>
+                            <option value="sms_notification" {% if filter_action == 'sms_notification' %}selected{% endif %}>SMS Notification</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Audit Logs List -->
+<div class="row">
+    <div class="col-lg-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Audit Log History</h5>
+            </div>
+            <div class="card-body">
+                {% if audit_logs %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Timestamp</th>
+                                <th>Action</th>
+                                <th>Entity</th>
+                                <th>Description</th>
+                                <th>Details</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for log in audit_logs %}
+                            <tr>
+                                <td>{{ log.id }}</td>
+                                <td>{{ log.timestamp.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+                                <td>
+                                    <span class="badge 
+                                        {% if 'create' in log.action %}bg-success
+                                        {% elif 'update' in log.action %}bg-warning
+                                        {% elif 'cancel' in log.action or 'delete' in log.action %}bg-danger
+                                        {% elif 'voice' in log.action %}bg-info
+                                        {% else %}bg-secondary{% endif %}">
+                                        {{ log.action }}
+                                    </span>
+                                </td>
+                                <td>{{ log.entity_type }} {% if log.entity_id %}#{{ log.entity_id }}{% endif %}</td>
+                                <td>{{ log.description }}</td>
+                                <td>
+                                    <button class="btn btn-sm btn-outline-info" data-bs-toggle="modal" data-bs-target="#logModal{{ log.id }}">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                    
+                                    <!-- Modal for viewing log details -->
+                                    <div class="modal fade" id="logModal{{ log.id }}" tabindex="-1" aria-labelledby="logModalLabel{{ log.id }}" aria-hidden="true">
+                                        <div class="modal-dialog modal-lg">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h5 class="modal-title" id="logModalLabel{{ log.id }}">Audit Log #{{ log.id }} Details</h5>
+                                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                </div>
+                                                <div class="modal-body">
+                                                    <div class="mb-3">
+                                                        <h6>Action</h6>
+                                                        <p>{{ log.action }}</p>
+                                                    </div>
+                                                    <div class="mb-3">
+                                                        <h6>Entity</h6>
+                                                        <p>{{ log.entity_type }} {% if log.entity_id %}#{{ log.entity_id }}{% endif %}</p>
+                                                    </div>
+                                                    <div class="mb-3">
+                                                        <h6>Timestamp</h6>
+                                                        <p>{{ log.timestamp.strftime('%Y-%m-%d %H:%M:%S') }}</p>
+                                                    </div>
+                                                    <div class="mb-3">
+                                                        <h6>Description</h6>
+                                                        <p>{{ log.description }}</p>
+                                                    </div>
+                                                    {% if log.data %}
+                                                    <div class="mb-3">
+                                                        <h6>Data</h6>
+                                                        <pre class="bg-dark text-light p-3 rounded"><code>{{ log.data }}</code></pre>
+                                                    </div>
+                                                    {% endif %}
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="alert alert-info">
+                    No audit logs found. Try adjusting your filters.
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+{% endblock %}

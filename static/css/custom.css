@@ -1,0 +1,116 @@
+/* Custom styles for restaurant booking system */
+
+/* Audio visualizer styling */
+#audio-visualizer {
+    width: 100%;
+    height: 100px;
+    background-color: var(--bs-dark);
+    border-radius: 8px;
+}
+
+/* Card styling */
+.booking-card {
+    transition: transform 0.2s;
+    margin-bottom: 1rem;
+}
+
+.booking-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+}
+
+/* Status badges */
+.status-confirmed {
+    background-color: var(--bs-success);
+}
+
+.status-canceled {
+    background-color: var(--bs-danger);
+}
+
+.status-completed {
+    background-color: var(--bs-info);
+}
+
+/* Spinning loader */
+.loading-spinner {
+    width: 3rem;
+    height: 3rem;
+}
+
+/* Audio player styling */
+.audio-player {
+    width: 100%;
+    margin-top: 1rem;
+}
+
+/* Transcript display */
+.transcript-box {
+    background-color: var(--bs-light);
+    border-radius: 8px;
+    padding: 1rem;
+    margin-top: 1rem;
+    min-height: 100px;
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+/* AI Response display */
+.ai-response-box {
+    background-color: var(--bs-info-bg-subtle);
+    border-radius: 8px;
+    padding: 1rem;
+    margin-top: 1rem;
+    min-height: 100px;
+    max-height: 200px;
+    overflow-y: auto;
+    border-left: 4px solid var(--bs-info);
+}
+
+/* Dashboard stats cards */
+.stats-card {
+    min-height: 150px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.stats-card .card-title {
+    font-size: 1.1rem;
+    margin-bottom: 0.5rem;
+}
+
+.stats-card .stats-value {
+    font-size: 2.5rem;
+    font-weight: bold;
+}
+
+/* Audit log styling */
+.audit-log-item {
+    border-left: 4px solid var(--bs-primary);
+    padding-left: 1rem;
+    margin-bottom: 1rem;
+}
+
+.audit-log-item.create {
+    border-left-color: var(--bs-success);
+}
+
+.audit-log-item.update {
+    border-left-color: var(--bs-warning);
+}
+
+.audit-log-item.delete {
+    border-left-color: var(--bs-danger);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .stats-card .stats-value {
+        font-size: 2rem;
+    }
+    
+    .chart-container {
+        height: 300px !important;
+    }
+}

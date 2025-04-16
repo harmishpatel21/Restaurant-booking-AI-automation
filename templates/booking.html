@@ -1,0 +1,144 @@
+{% extends "base.html" %}
+
+{% block title %}Restaurant Booking AI - New Booking{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-12">
+        <h1>Create New Booking</h1>
+        <p>Use voice interaction or manual form to create a new booking</p>
+    </div>
+</div>
+
+<!-- Voice Interaction Section -->
+<div class="row mb-5">
+    <div class="col-lg-12">
+        <div class="card">
+            <div class="card-header">
+                <h2 class="card-title mb-0">Voice Booking</h2>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <p>Speak to create a booking. The AI will transcribe your speech and extract booking details.</p>
+                        <div class="mb-3">
+                            <canvas id="audio-visualizer"></canvas>
+                        </div>
+                        <div class="d-flex gap-2 mb-3">
+                            <button id="start-record" class="btn btn-primary" disabled>
+                                <i class="fas fa-microphone me-1"></i> Start Recording
+                            </button>
+                            <button id="stop-record" class="btn btn-danger" disabled>
+                                <i class="fas fa-stop-circle me-1"></i> Stop Recording
+                            </button>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Recording Playback</label>
+                            <audio id="audio-playback" controls class="audio-player"></audio>
+                        </div>
+                        <div id="loading-indicator" class="text-center d-none">
+                            <div class="spinner-border text-primary loading-spinner" role="status">
+                                <span class="visually-hidden">Loading...</span>
+                            </div>
+                            <p class="mt-2">Processing your recording...</p>
+                        </div>
+                        <div id="error-message" class="alert alert-danger d-none"></div>
+                        <div id="success-message" class="alert alert-success d-none"></div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label">Your Speech Transcript</label>
+                            <div id="transcript" class="transcript-box">
+                                Record your voice to see the transcript here.
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">AI Response</label>
+                            <div id="ai-response" class="ai-response-box">
+                                The AI response will appear here after processing.
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">AI Voice Response</label>
+                            <audio id="ai-audio-response" controls class="audio-player"></audio>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Manual Booking Form -->
+<div class="row">
+    <div class="col-lg-12">
+        <div class="card">
+            <div class="card-header">
+                <h2 class="card-title mb-0">Manual Booking Form</h2>
+            </div>
+            <div class="card-body">
+                <form id="booking-form" action="/booking/create" method="post">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="customer_name" class="form-label">Customer Name *</label>
+                            <input type="text" class="form-control" id="customer_name" name="customer_name" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="customer_phone" class="form-label">Phone Number *</label>
+                            <input type="tel" class="form-control" id="customer_phone" name="customer_phone" required>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="customer_email" class="form-label">Email Address</label>
+                            <input type="email" class="form-control" id="customer_email" name="customer_email">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="party_size" class="form-label">Party Size *</label>
+                            <select class="form-select" id="party_size" name="party_size" required>
+                                <option value="">Select party size</option>
+                                {% for i in range(1, 21) %}
+                                <option value="{{ i }}">{{ i }} {{ 'person' if i == 1 else 'people' }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="booking_date" class="form-label">Date *</label>
+                            <input type="date" class="form-control" id="booking_date" name="booking_date" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="booking_time" class="form-label">Time *</label>
+                            <select class="form-select" id="booking_time" name="booking_time" required>
+                                <option value="">Select time</option>
+                                {% for hour in range(11, 23) %}
+                                    {% for minute in ['00', '30'] %}
+                                        <option value="{{ '%02d' % hour }}:{{ minute }}">{{ '%02d' % hour }}:{{ minute }}</option>
+                                    {% endfor %}
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="special_requests" class="form-label">Special Requests</label>
+                        <textarea class="form-control" id="special_requests" name="special_requests" rows="3"></textarea>
+                    </div>
+                    <div class="form-check mb-3">
+                        <input class="form-check-input" type="checkbox" id="send_sms" name="send_sms" value="1" checked>
+                        <label class="form-check-label" for="send_sms">
+                            Send confirmation SMS to customer
+                        </label>
+                    </div>
+                    <button type="submit" class="btn btn-success">Create Booking</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/recorder.js') }}"></script>
+<script src="{{ url_for('static', filename='js/booking.js') }}"></script>
+{% endblock %}

@@ -1,0 +1,118 @@
+{% extends "base.html" %}
+
+{% block title %}Restaurant Booking AI - Home{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-12 text-center mb-5">
+        <h1 class="display-4">Restaurant Booking AI</h1>
+        <p class="lead">AI-powered restaurant booking management with voice capabilities</p>
+    </div>
+</div>
+
+<div class="row mb-5">
+    <div class="col-lg-8 offset-lg-2">
+        <div class="card bg-dark">
+            <div class="card-body text-center">
+                <h2 class="mb-4">Get Started</h2>
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <a href="/booking" class="btn btn-primary btn-lg w-100">
+                            <i class="fas fa-calendar-plus me-2"></i> Create New Booking
+                        </a>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <a href="/dashboard" class="btn btn-info btn-lg w-100">
+                            <i class="fas fa-tachometer-alt me-2"></i> View Dashboard
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mb-5">
+    <div class="col-lg-12">
+        <h2 class="text-center mb-4">Key Features</h2>
+    </div>
+    <div class="col-md-4 mb-4">
+        <div class="card h-100">
+            <div class="card-body text-center">
+                <i class="fas fa-microphone fa-3x mb-3 text-primary"></i>
+                <h3>Voice Interface</h3>
+                <p>Natural voice interaction for booking reservations with AI-powered conversational capabilities.</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4 mb-4">
+        <div class="card h-100">
+            <div class="card-body text-center">
+                <i class="fas fa-calendar-alt fa-3x mb-3 text-primary"></i>
+                <h3>Calendar Integration</h3>
+                <p>Seamless integration with Calendly to manage reservations and availability in real-time.</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4 mb-4">
+        <div class="card h-100">
+            <div class="card-body text-center">
+                <i class="fas fa-sms fa-3x mb-3 text-primary"></i>
+                <h3>SMS Notifications</h3>
+                <p>Automated SMS confirmations and reminders for customers using Twilio integration.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-12">
+        <h2 class="text-center mb-4">How It Works</h2>
+    </div>
+    <div class="col-md-3 mb-4">
+        <div class="card h-100">
+            <div class="card-body text-center">
+                <div class="bg-primary text-white rounded-circle d-inline-flex justify-content-center align-items-center mb-3" style="width: 50px; height: 50px;">
+                    <span class="fs-4">1</span>
+                </div>
+                <h4>Voice Request</h4>
+                <p>Customer calls or uses voice interface to request a reservation.</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-4">
+        <div class="card h-100">
+            <div class="card-body text-center">
+                <div class="bg-primary text-white rounded-circle d-inline-flex justify-content-center align-items-center mb-3" style="width: 50px; height: 50px;">
+                    <span class="fs-4">2</span>
+                </div>
+                <h4>AI Processing</h4>
+                <p>System transcribes speech and extracts booking details using AI.</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-4">
+        <div class="card h-100">
+            <div class="card-body text-center">
+                <div class="bg-primary text-white rounded-circle d-inline-flex justify-content-center align-items-center mb-3" style="width: 50px; height: 50px;">
+                    <span class="fs-4">3</span>
+                </div>
+                <h4>Scheduling</h4>
+                <p>System checks availability and creates booking via Calendly.</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-4">
+        <div class="card h-100">
+            <div class="card-body text-center">
+                <div class="bg-primary text-white rounded-circle d-inline-flex justify-content-center align-items-center mb-3" style="width: 50px; height: 50px;">
+                    <span class="fs-4">4</span>
+                </div>
+                <h4>Confirmation</h4>
+                <p>Customer receives voice confirmation and SMS with booking details.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
