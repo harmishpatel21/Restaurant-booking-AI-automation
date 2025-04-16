@@ -136,12 +136,22 @@ def mock_available_slots(date_str):
     # Generate slots from 11:00 to 21:00 with 30-minute intervals
     available_slots = []
     
+    # Simulate some slots being unavailable (e.g., 12:00, 13:30, 19:00)
+    unavailable_times = ['12:00', '13:30', '19:00', '20:30']
+    
     for hour in range(11, 22):
         for minute in [0, 30]:
+            time_str = f"{hour:02d}:{minute:02d}"
+            
+            # Skip unavailable times
+            if time_str in unavailable_times:
+                continue
+                
             slot_time = date_obj.replace(hour=hour, minute=minute)
             available_slots.append({
                 'start_time': slot_time.strftime('%Y-%m-%dT%H:%M:%S'),
-                'end_time': (slot_time + timedelta(minutes=30)).strftime('%Y-%m-%dT%H:%M:%S')
+                'end_time': (slot_time + timedelta(minutes=30)).strftime('%Y-%m-%dT%H:%M:%S'),
+                'time': time_str  # Add simple time format for easier comparison
             })
     
     return available_slots

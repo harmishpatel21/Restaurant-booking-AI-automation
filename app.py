@@ -50,10 +50,12 @@ with app.app_context():
     from routes.booking import booking_bp
     from routes.dashboard import dashboard_bp
     from routes.voice import voice_bp
+    from routes.twilio_call import twilio_call_bp
     
     app.register_blueprint(main_bp)
     app.register_blueprint(booking_bp)
     app.register_blueprint(dashboard_bp)
     app.register_blueprint(voice_bp)
+    app.register_blueprint(twilio_call_bp)
 
 logger.info("Application initialized successfully")
