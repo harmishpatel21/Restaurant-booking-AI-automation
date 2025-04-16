@@ -53,8 +53,33 @@ source venv/bin/activate  # On Windows: venv\Scripts\activate
 
 ### 3. Install Dependencies
 
+If you have a requirements.txt file:
 ```bash
 pip install -r requirements.txt
+```
+
+If you don't have a requirements.txt file, you can manually install the required packages:
+```bash
+pip install elevenlabs==0.2.24 email-validator==2.0.0 flask==2.3.3 flask-sqlalchemy==3.1.1 \
+    gunicorn==21.2.0 openai==1.3.7 psycopg2-binary==2.9.9 pydub==0.25.1 \
+    python-dotenv==1.0.0 requests==2.31.0 sqlalchemy==2.0.23 twilio==8.10.0 werkzeug==2.3.7
+```
+
+Here's a complete list of required packages that you can add to a requirements.txt file:
+```
+elevenlabs==0.2.24
+email-validator==2.0.0
+flask==2.3.3
+flask-sqlalchemy==3.1.1
+gunicorn==21.2.0
+openai==1.3.7
+psycopg2-binary==2.9.9
+pydub==0.25.1
+python-dotenv==1.0.0
+requests==2.31.0
+sqlalchemy==2.0.23
+twilio==8.10.0
+werkzeug==2.3.7
 ```
 
 ### 4. Set Up Environment Variables
@@ -154,6 +179,27 @@ https://abc123.ngrok.io/twilio/incoming-call
 │                 │    │                 │
 └─────────────────┘    └─────────────────┘
 ```
+
+## Frontend Assets and JavaScript Files
+
+The application uses several JavaScript files for frontend functionality:
+
+### Main JavaScript Files
+
+- **static/js/recorder.js**: Handles audio recording for the web-based voice booking feature
+- **static/js/booking.js**: Manages the booking form and its submission
+- **static/js/dashboard.js**: Provides functionality for the restaurant management dashboard
+
+### CSS Styling
+
+The application uses Bootstrap with a Replit-themed dark mode stylesheet:
+```html
+<link rel="stylesheet" href="https://cdn.replit.com/agent/bootstrap-agent-dark-theme.min.css">
+```
+
+### No Additional JavaScript Configuration Needed
+
+For the Twilio voice call integration, no additional JavaScript configuration is needed as it operates through server-side webhooks. The voice conversation is handled entirely on the server using TwiML responses.
 
 ## API and Service Integrations
 
