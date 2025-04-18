@@ -67,7 +67,7 @@ def incoming_call():
     
     return Response(str(response), mimetype='text/xml')
 
-@twilio_call_bp.route('/twilio/collect-name', methods=['POST'])
+@twilio_call_bp.route('/twilio/collect-name', methods=['GET', 'POST'])
 def collect_name():
     """Collect the caller's name"""
     call_sid = request.values.get('CallSid', '')
@@ -135,7 +135,7 @@ def collect_name():
     
     return Response(str(response), mimetype='text/xml')
 
-@twilio_call_bp.route('/twilio/collect-party-size', methods=['POST'])
+@twilio_call_bp.route('/twilio/collect-party-size', methods=['GET', 'POST'])
 def collect_party_size():
     """Collect the party size"""
     call_sid = request.values.get('CallSid', '')
@@ -213,7 +213,7 @@ def collect_party_size():
     
     return Response(str(response), mimetype='text/xml')
 
-@twilio_call_bp.route('/twilio/collect-date', methods=['POST'])
+@twilio_call_bp.route('/twilio/collect-date', methods=['GET', 'POST'])
 def collect_date():
     """Collect the booking date"""
     call_sid = request.values.get('CallSid', '')
@@ -303,7 +303,7 @@ def collect_date():
     
     return Response(str(response), mimetype='text/xml')
 
-@twilio_call_bp.route('/twilio/collect-time', methods=['POST'])
+@twilio_call_bp.route('/twilio/collect-time', methods=['GET', 'POST'])
 def collect_time():
     """Collect the booking time"""
     call_sid = request.values.get('CallSid', '')
@@ -443,7 +443,7 @@ def collect_time():
     
     return Response(str(response), mimetype='text/xml')
 
-@twilio_call_bp.route('/twilio/collect-alternative-time', methods=['POST'])
+@twilio_call_bp.route('/twilio/collect-alternative-time', methods=['GET', 'POST'])
 def collect_alternative_time():
     """Handle selection of alternative time slots"""
     call_sid = request.values.get('CallSid', '')
@@ -546,7 +546,7 @@ def collect_alternative_time():
     
     return Response(str(response), mimetype='text/xml')
 
-@twilio_call_bp.route('/twilio/confirm-booking', methods=['POST'])
+@twilio_call_bp.route('/twilio/confirm-booking', methods=['GET', 'POST'])
 def confirm_booking():
     """Handle booking confirmation"""
     call_sid = request.values.get('CallSid', '')
@@ -625,7 +625,7 @@ def confirm_booking():
     
     return Response(str(response), mimetype='text/xml')
 
-@twilio_call_bp.route('/twilio/fallback', methods=['POST'])
+@twilio_call_bp.route('/twilio/fallback', methods=['GET', 'POST'])
 def fallback():
     """Handle fallback for when things go wrong"""
     response = VoiceResponse()
