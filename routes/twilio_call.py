@@ -16,7 +16,7 @@ twilio_call_bp = Blueprint('twilio_call', __name__)
 # In production, this should be stored in a database or Redis
 conversation_states = {}
 
-@twilio_call_bp.route('/twilio/incoming-call', methods=['POST'])
+@twilio_call_bp.route('/twilio/incoming-call', methods=['GET', 'POST'])
 def incoming_call():
     """Handle incoming Twilio voice calls"""
     # Get the caller's phone number

@@ -1,5 +1,5 @@
 import os
-import openai
+from openai import OpenAI
 from flask import current_app
 
 def transcribe_audio(audio_file_path):
@@ -19,13 +19,13 @@ def transcribe_audio(audio_file_path):
             current_app.logger.error("OpenAI API key not found")
             return None
             
-        # Set OpenAI API key
-        openai.api_key = api_key
+        # Initialize OpenAI client with API key
+        client = OpenAI(api_key=api_key)
         
         # Open the audio file
         with open(audio_file_path, "rb") as audio_file:
             # Transcribe using Whisper API
-            response = openai.Audio.transcribe(
+            response = client.audio.transcriptions.create(
                 model="whisper-1",
                 file=audio_file
             )
@@ -33,8 +33,14 @@ def transcribe_audio(audio_file_path):
             if response and hasattr(response, 'text'):
                 return response.text
             else:
-                current_app.logger.error("Failed to transcribe audio with Whisper")
-                return None
+                # For newer OpenAI API versions, the response might be different
+                if isinstance(response, str):
+                    return response
+                elif hasattr(response, '__dict__'):
+                    return getattr(response, 'text', str(response))
+                else:
+                    current_app.logger.error("Failed to transcribe audio with Whisper")
+                    return None
                 
     except Exception as e:
         current_app.logger.error(f"Error in transcribe_audio: {str(e)}")
