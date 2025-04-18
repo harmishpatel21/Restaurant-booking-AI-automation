@@ -141,6 +141,10 @@ def collect_party_size():
     call_sid = request.values.get('CallSid', '')
     speech_result = request.values.get('SpeechResult', '')
     
+    # Debug logging
+    print(f"DEBUG - Party Size Speech Input: '{speech_result}'")
+    print(f"DEBUG - All request values: {dict(request.values)}")
+    
     # Get the conversation state
     state = conversation_states.get(call_sid, {
         'stage': 'party_size',
@@ -157,28 +161,69 @@ def collect_party_size():
     db.session.add(voice_interaction)
     db.session.commit()
     
-    # Try to extract the party size from speech
-    # Get words that might be numbers
-    words = speech_result.lower().split()
+    # Try to extract the party size from speech - enhanced logic
+    speech_lower = speech_result.lower()
     
+    # Dictionary for word-to-number conversion
     word_to_num = {
         'one': 1, 'two': 2, 'three': 3, 'four': 4, 'five': 5,
-        'six': 6, 'seven': 7, 'eight': 8, 'nine': 9, 'ten': 10
+        'six': 6, 'seven': 7, 'eight': 8, 'nine': 9, 'ten': 10,
+        'a': 1, 'single': 1, 'couple': 2, 'pair': 2, 'few': 3, 
+        'several': 4, 'many': 6
     }
     
-    party_size = None
-    for word in words:
-        if word in word_to_num:
-            party_size = word_to_num[word]
-            break
-        elif word.isdigit():
-            party_size = int(word)
-            break
+    # First try to find digits using regex
+    import re
+    digit_match = re.search(r'\b(\d+)\b', speech_lower)
+    party_size = int(digit_match.group(1)) if digit_match else None
+    
+    # If no digits found, try to find number words
+    if not party_size:
+        for word, number in word_to_num.items():
+            if word in speech_lower:
+                party_size = number
+                break
+                
+    # Additional patterns for common phrases
+    if not party_size:
+        if "just me" in speech_lower or "only me" in speech_lower or "myself" in speech_lower:
+            party_size = 1
+        elif "me and my" in speech_lower and "wife" in speech_lower or "husband" in speech_lower or "partner" in speech_lower:
+            party_size = 2
+        elif "family" in speech_lower:
+            party_size = 4  # Default family size as fallback
+            
+    # If SpeechResult is empty or very short, it might mean Twilio couldn't recognize the speech
+    # Let's provide a default of 2 people if the speech is empty or very short (less than 3 chars)
+    if not party_size and (not speech_result or len(speech_result.strip()) < 3):
+        party_size = 2  # Default for empty or unrecognized speech
     
     if party_size:
         # Store party size in state
         state['booking_data']['party_size'] = party_size
         state['stage'] = 'date'
+        
+        # Make sure we have a restaurant_id
+        if 'restaurant_id' not in state['booking_data']:
+            # Just get the first restaurant as default (or create one if doesn't exist)
+            restaurant = Restaurant.query.first()
+            if not restaurant:
+                # Create a default restaurant if none exists
+                restaurant = Restaurant(
+                    name="Our Restaurant",
+                    phone_number="+11234567890",
+                    address="123 Main St",
+                    opening_time="11:00",
+                    closing_time="22:00",
+                    capacity=100
+                )
+                db.session.add(restaurant)
+                db.session.commit()
+                print(f"DEBUG - Created default restaurant with ID: {restaurant.id}")
+            
+            state['booking_data']['restaurant_id'] = restaurant.id
+            print(f"DEBUG - Using restaurant ID: {restaurant.id}")
+        
         conversation_states[call_sid] = state
         
         # Respond and ask for date
@@ -262,6 +307,15 @@ def collect_date():
                 booking_date = today + timedelta(days=days_ahead)
                 break
     
+    # Debug logging
+    print(f"DEBUG - Date Speech Input: '{speech_result}'")
+    print(f"DEBUG - Date request values: {dict(request.values)}")
+    
+    # If no date was recognized and speech is empty/very short, use tomorrow as default
+    if not booking_date and (not speech_result or len(speech_result.strip()) < 3):
+        booking_date = tomorrow  # Default to tomorrow if speech recognition failed
+        print(f"DEBUG - Using default date (tomorrow): {booking_date}")
+    
     if booking_date:
         # Store date in state
         state['booking_data']['booking_date'] = booking_date
@@ -324,6 +378,10 @@ def collect_time():
     )
     db.session.add(voice_interaction)
     db.session.commit()
+    
+    # Debug logging
+    print(f"DEBUG - Time Speech Input: '{speech_result}'")
+    print(f"DEBUG - Time request values: {dict(request.values)}")
     
     # Try to extract the time from speech
     import re
@@ -421,6 +479,57 @@ def collect_time():
             gather = Gather(
                 input='speech',
                 action='/twilio/collect-alternative-time',
+                timeout=5,
+                speech_timeout='auto'
+            )
+            response.append(gather)
+    # If speech is empty or very short, use default time
+    elif not speech_result or len(speech_result.strip()) < 3:
+        # Use the first available slot as default
+        booking_date = state['booking_data']['booking_date']
+        date_str = booking_date.strftime('%Y-%m-%d')
+        available_slots = get_available_slots(date_str)
+        
+        if available_slots:
+            default_time = available_slots[0]['time']
+            print(f"DEBUG - Using default time: {default_time}")
+            
+            # Store time in state
+            state['booking_data']['booking_time'] = default_time
+            state['stage'] = 'confirmation'
+            conversation_states[call_sid] = state
+            
+            # Get data for confirmation
+            customer_name = state['booking_data'].get('customer_name', 'you')
+            party_size = state['booking_data']['party_size']
+            formatted_date = booking_date.strftime("%A, %B %d")
+            
+            # Respond and ask for confirmation
+            response.say(
+                f"I've scheduled you for {default_time}, our most popular time. "
+                f"So that's a table for {party_size} on {formatted_date} at {default_time}. "
+                f"Is this correct, {customer_name}? Please say yes or no.",
+                voice='Polly.Matthew'
+            )
+            
+            gather = Gather(
+                input='speech',
+                action='/twilio/confirm-booking',
+                timeout=5,
+                speech_timeout='auto'
+            )
+            response.append(gather)
+        else:
+            # If no slots available, try again
+            response.say(
+                "I'm sorry, I didn't catch the time you'd like to book. "
+                "Could you please tell me the time, like '7 PM' or '6:30'?",
+                voice='Polly.Matthew'
+            )
+            
+            gather = Gather(
+                input='speech',
+                action='/twilio/collect-time',
                 timeout=5,
                 speech_timeout='auto'
             )
