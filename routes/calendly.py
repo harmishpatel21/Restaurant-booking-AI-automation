@@ -6,6 +6,14 @@ from models import db, Booking, Restaurant
 
 calendly_bp = Blueprint('calendly', __name__)
 
+@calendly_bp.route('/calendly/test', methods=['GET'])
+def calendly_test_page():
+    """
+    Render the Calendly test page
+    """
+    today_date = datetime.today().strftime('%Y-%m-%d')
+    return render_template('calendly_test.html', today_date=today_date)
+
 @calendly_bp.route('/api/calendly/test-connection', methods=['GET'])
 def test_calendly_connection():
     """

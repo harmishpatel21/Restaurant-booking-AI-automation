@@ -1,0 +1,190 @@
+{% extends "base.html" %}
+
+{% block title %}Calendly Integration Test{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row">
+        <div class="col-12">
+            <h2>Calendly Integration Test</h2>
+            <p class="text-muted">This page allows you to test your Calendly API integration.</p>
+            
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5>Connection Status</h5>
+                </div>
+                <div class="card-body">
+                    <div id="connection-status">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                        <span>Checking Calendly connection...</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5>Available Slots</h5>
+                </div>
+                <div class="card-body">
+                    <form id="date-form" class="mb-3">
+                        <div class="row g-3 align-items-center">
+                            <div class="col-auto">
+                                <label for="date-input" class="col-form-label">Select Date:</label>
+                            </div>
+                            <div class="col-auto">
+                                <input type="date" id="date-input" class="form-control" 
+                                       value="{{ today_date }}" required>
+                            </div>
+                            <div class="col-auto">
+                                <button type="submit" class="btn btn-primary">Get Available Slots</button>
+                            </div>
+                        </div>
+                    </form>
+                    
+                    <div id="slots-container">
+                        <p>Select a date to see available slots.</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5>Calendly Setup Instructions</h5>
+                </div>
+                <div class="card-body">
+                    <p>To set up Calendly integration for your personal account:</p>
+                    <ol>
+                        <li>Log in to your Calendly account</li>
+                        <li>Go to "Integrations" and then "API & Webhooks"</li>
+                        <li>Click "Generate New Token"</li>
+                        <li>Name your token (e.g., "Restaurant Booking System")</li>
+                        <li>Select the necessary scopes: <code>organization:read</code>, <code>scheduling_links:read</code>, <code>scheduled_events:write</code></li>
+                        <li>Copy the generated token</li>
+                        <li>Add the token to your Replit environment variables as <code>CALENDLY_API_KEY</code></li>
+                    </ol>
+                    <p>This application will automatically detect your user information and event types, so you don't need to provide organization ID or event type manually.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Test connection
+        testConnection();
+        
+        // Handle date form submission
+        document.getElementById('date-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const date = document.getElementById('date-input').value;
+            getAvailableSlots(date);
+        });
+    });
+    
+    function testConnection() {
+        const statusEl = document.getElementById('connection-status');
+        
+        fetch('/api/calendly/test-connection')
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    statusEl.innerHTML = `
+                        <div class="alert alert-success" role="alert">
+                            <h4 class="alert-heading">Connected! ✅</h4>
+                            <p>${data.message}</p>
+                            <hr>
+                            <p class="mb-0">Found ${data.slots_count} available slots.</p>
+                        </div>
+                    `;
+                } else {
+                    statusEl.innerHTML = `
+                        <div class="alert alert-warning" role="alert">
+                            <h4 class="alert-heading">Not Connected ⚠️</h4>
+                            <p>${data.message}</p>
+                            <hr>
+                            <p class="mb-0">Check the setup instructions below.</p>
+                        </div>
+                    `;
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                statusEl.innerHTML = `
+                    <div class="alert alert-danger" role="alert">
+                        <h4 class="alert-heading">Error ❌</h4>
+                        <p>Failed to connect to Calendly API: ${error}</p>
+                    </div>
+                `;
+            });
+    }
+    
+    function getAvailableSlots(date) {
+        const slotsContainer = document.getElementById('slots-container');
+        slotsContainer.innerHTML = `
+            <div class="text-center my-4">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+                <p>Loading available slots...</p>
+            </div>
+        `;
+        
+        fetch(`/api/calendly/available-slots?date=${date}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.success && data.slots.length > 0) {
+                    let slotsHtml = `
+                        <h5 class="mb-3">Available slots for ${formatDate(date)}:</h5>
+                        <div class="row">
+                    `;
+                    
+                    data.slots.forEach(slot => {
+                        slotsHtml += `
+                            <div class="col-md-3 col-sm-4 col-6 mb-2">
+                                <div class="card h-100">
+                                    <div class="card-body text-center">
+                                        <h5 class="card-title">${slot.time}</h5>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    });
+                    
+                    slotsHtml += `</div>`;
+                    slotsContainer.innerHTML = slotsHtml;
+                } else if (data.success && data.slots.length === 0) {
+                    slotsContainer.innerHTML = `
+                        <div class="alert alert-info" role="alert">
+                            No available slots found for ${formatDate(date)}.
+                        </div>
+                    `;
+                } else {
+                    slotsContainer.innerHTML = `
+                        <div class="alert alert-danger" role="alert">
+                            Error: ${data.message}
+                        </div>
+                    `;
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                slotsContainer.innerHTML = `
+                    <div class="alert alert-danger" role="alert">
+                        Failed to fetch available slots: ${error}
+                    </div>
+                `;
+            });
+    }
+    
+    function formatDate(dateString) {
+        const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+        const date = new Date(dateString);
+        return date.toLocaleDateString('en-US', options);
+    }
+</script>
+{% endblock %}
